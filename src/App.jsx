@@ -593,7 +593,7 @@ export default function GlyphAnalyzer() {
       }}>
         <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
           <div style={{ width: 24, height: 24, borderRadius: 6, background: `linear-gradient(135deg, ${T.accent}, ${T.teal})`, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 14, color: "#fff", fontWeight: 700 }}>𝛋</div>
-          <span style={{ fontSize: T.fzCallout, fontWeight: 600, color: T.labelPrimary, letterSpacing: T.trackJP }}>グリフ幾何解析</span>
+          <span style={{ fontSize: T.fzCallout, fontWeight: 600, color: T.labelPrimary, letterSpacing: T.trackJP }}>Graphicurve</span>
         </div>
 
         <div style={{ width: 1, height: 24, background: T.separator }} />
