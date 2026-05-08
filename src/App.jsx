@@ -547,15 +547,38 @@ export default function GlyphAnalyzer() {
 
   const emScale = displaySize;
 
-  // All inflection points
+  // All inflection points (including inter-segment joints where curvature flips sign)
   const allInflections = useMemo(() => {
     const pts = [];
     analyzed.forEach((seg, si) => {
+      // Within-segment inflections (cubic only — quadratics can't have them)
       seg.inflections.forEach(t => {
         const e = evalSegment(seg, t);
-        pts.push({ ...e, segIdx: si, t });
+        pts.push({ ...e, segIdx: si, t, kind: "interior" });
       });
     });
+    // Joint inflections: between consecutive segments of the same contour,
+    // if curvature sign flips and the joint is geometrically continuous.
+    for (let i = 0; i < analyzed.length - 1; i++) {
+      const a = analyzed[i];
+      const b = analyzed[i + 1];
+      // Joint must be coincident (closed contour or sequential)
+      const aEnd = a.samples[a.samples.length - 1];
+      const bStart = b.samples[0];
+      const dx = aEnd.x - bStart.x, dy = aEnd.y - bStart.y;
+      if (Math.sqrt(dx*dx + dy*dy) > 0.5) continue; // not connected
+      // Compare curvature just before and just after the joint
+      const kBefore = a.samples[a.samples.length - 1].k;
+      const kAfter  = b.samples[0].k;
+      // Use one sample inside to avoid noise at exact endpoint
+      const kBefore2 = a.samples[Math.max(0, a.samples.length - 3)].k;
+      const kAfter2  = b.samples[Math.min(b.samples.length - 1, 2)].k;
+      const beforeAvg = (kBefore + kBefore2) / 2;
+      const afterAvg  = (kAfter + kAfter2) / 2;
+      if (beforeAvg * afterAvg < 0 && Math.abs(beforeAvg) > 1e-5 && Math.abs(afterAvg) > 1e-5) {
+        pts.push({ x: aEnd.x, y: aEnd.y, d1: aEnd.d1, k: 0, segIdx: i, t: 1, kind: "joint" });
+      }
+    }
     return pts;
   }, [analyzed]);
 
