@@ -1,4 +1,5 @@
 import { useState, useRef, useEffect, useCallback, useMemo } from "react";
+import * as opentype from "opentype.js";
 
 /* ═══════════════════════════════════════════
    MATH: Bézier evaluation & curvature
@@ -454,21 +455,13 @@ export default function GlyphAnalyzer() {
   const canvasH = 520;
   const plotH = 140;
 
-  // Load opentype.js
-  useEffect(() => {
-    if (window.opentype) { setOtReady(true); return; }
-    const s = document.createElement("script");
-    s.src = "https://cdnjs.cloudflare.com/ajax/libs/opentype.js/1.3.4/opentype.min.js";
-    s.onload = () => setOtReady(true);
-    s.onerror = () => console.error("Failed to load opentype.js");
-    document.head.appendChild(s);
-  }, []);
+  // opentype.js is now bundled via import — no CDN load needed
+  useEffect(() => { setOtReady(true); }, []);
 
   const handleFile = useCallback(async (file) => {
-    if (!window.opentype) return;
     try {
       const buf = await file.arrayBuffer();
-      const f = window.opentype.parse(buf);
+      const f = opentype.parse(buf);
       setFont(f);
       setFontName(f.names?.fontFamily?.en || f.names?.fontFamily || file.name);
     } catch (e) {
