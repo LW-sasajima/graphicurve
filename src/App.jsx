@@ -211,11 +211,11 @@ const T = {
   separator: "rgba(255,255,255,0.08)",
   border: "rgba(255,255,255,0.12)",
 
-  // Text (Apple semantic)
-  labelPrimary: "rgba(255,255,255,0.92)",
-  labelSecondary: "rgba(235,235,245,0.60)",
-  labelTertiary: "rgba(235,235,245,0.30)",
-  labelQuaternary: "rgba(235,235,245,0.18)",
+  // Text (DADS-tuned: brighter tertiary for kanji legibility on dark bg)
+  labelPrimary: "rgba(255,255,255,0.96)",
+  labelSecondary: "rgba(235,235,245,0.72)",
+  labelTertiary: "rgba(235,235,245,0.50)",
+  labelQuaternary: "rgba(235,235,245,0.28)",
 
   // Accent (systemBlue)
   accent: "#0A84FF",
@@ -232,27 +232,38 @@ const T = {
   radiusControl: 6,
   radiusInline: 4,
 
-  // Typography
-  fontUI: '-apple-system, BlinkMacSystemFont, "SF Pro Text", "SF Pro Display", "Helvetica Neue", Helvetica, Arial, sans-serif',
-  fontMono: '"SF Mono", ui-monospace, Menlo, Monaco, Consolas, monospace',
+  // Typography (DADS: latin first, then Japanese, with Hiragino/BIZ UDP/Yu/Meiryo fallbacks)
+  fontUI: '-apple-system, BlinkMacSystemFont, "SF Pro Text", "SF Pro Display", "Helvetica Neue", "Hiragino Sans", "Hiragino Kaku Gothic ProN", "BIZ UDPGothic", "Yu Gothic UI", "Yu Gothic", Meiryo, sans-serif',
+  fontMono: '"SF Mono", ui-monospace, Menlo, Monaco, Consolas, "BIZ UDGothic", "Hiragino Sans", monospace',
+
+  // Type scale (DADS: min 12px, body 14px, line-height 1.5+ for JP)
+  fzCaption: 12,    // 補足情報
+  fzFootnote: 13,   // 副次的なラベル
+  fzBody: 14,       // 標準テキスト
+  fzCallout: 15,    // 強調テキスト
+  fzHeadline: 16,   // 見出し
+  lhTight: 1.45,
+  lhBody: 1.6,
+  // Letter-spacing for mixed JP/Latin
+  trackJP: "0.02em",
 };
 
 function Row({ label, value, help }) {
   return (
-    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "3px 0", fontSize: 12 }}>
-      <span style={{ color: T.labelSecondary, fontFamily: T.fontUI, display: "inline-flex", alignItems: "center" }}>
+    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "5px 0", fontSize: T.fzFootnote, lineHeight: T.lhTight }}>
+      <span style={{ color: T.labelSecondary, fontFamily: T.fontUI, display: "inline-flex", alignItems: "center", letterSpacing: T.trackJP }}>
         {label}
         {help && <HelpButton help={help} />}
       </span>
-      <span style={{ color: T.labelPrimary, fontVariantNumeric: "tabular-nums", fontFamily: T.fontMono, fontSize: 11 }}>{value}</span>
+      <span style={{ color: T.labelPrimary, fontVariantNumeric: "tabular-nums", fontFamily: T.fontMono, fontSize: T.fzCaption }}>{value}</span>
     </div>
   );
 }
 
 function SectionHeader({ children, action, help }) {
   return (
-    <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 8, paddingLeft: 2 }}>
-      <span style={{ fontSize: 11, fontWeight: 600, color: T.labelSecondary, letterSpacing: "0.02em", fontFamily: T.fontUI, display: "inline-flex", alignItems: "center" }}>
+    <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 10, paddingLeft: 2 }}>
+      <span style={{ fontSize: T.fzFootnote, fontWeight: 600, color: T.labelPrimary, letterSpacing: T.trackJP, fontFamily: T.fontUI, display: "inline-flex", alignItems: "center", lineHeight: T.lhTight }}>
         {children}
         {help && <HelpButton help={help} />}
       </span>
@@ -323,7 +334,7 @@ function HelpButton({ help }) {
   useEffect(() => {
     if (!open || !ref.current) return;
     const r = ref.current.getBoundingClientRect();
-    const W = 260, H = 110;
+    const W = 280, H = 140;
     let top = r.bottom + 8;
     let left = r.left + r.width / 2 - W / 2;
     if (top + H > window.innerHeight - 12) top = r.top - 8 - H;
@@ -342,19 +353,19 @@ function HelpButton({ help }) {
         onClick={(e) => { e.stopPropagation(); e.preventDefault(); setOpen(o => !o); }}
         aria-label={`${help.title}の説明`}
         style={{
-          width: 14, height: 14,
+          width: 16, height: 16,
           padding: 0,
           borderRadius: "50%",
           border: "none",
-          background: open ? T.accent : "rgba(120,120,128,0.32)",
+          background: open ? T.accent : "rgba(120,120,128,0.40)",
           color: "#fff",
-          fontSize: 9,
+          fontSize: 11,
           fontWeight: 700,
           fontFamily: T.fontUI,
           cursor: "pointer",
           display: "inline-flex", alignItems: "center", justifyContent: "center",
           lineHeight: 1,
-          marginLeft: 4,
+          marginLeft: 6,
           flexShrink: 0,
           transition: "background 0.15s",
           verticalAlign: "middle",
@@ -367,23 +378,23 @@ function HelpButton({ help }) {
           style={{
             position: "fixed",
             top: pos.top, left: pos.left,
-            width: 260,
-            background: "rgba(50,50,52,0.96)",
+            width: 280,
+            background: "rgba(50,50,52,0.98)",
             backdropFilter: "saturate(180%) blur(20px)",
             WebkitBackdropFilter: "saturate(180%) blur(20px)",
             border: `1px solid ${T.border}`,
             borderRadius: T.radiusCard,
-            padding: "12px 14px",
+            padding: "14px 16px",
             boxShadow: "0 12px 32px rgba(0,0,0,0.5), 0 2px 8px rgba(0,0,0,0.3), inset 0 1px 0 rgba(255,255,255,0.08)",
             zIndex: 1000,
             fontFamily: T.fontUI,
           }}
           onClick={(e) => e.stopPropagation()}
         >
-          <div style={{ fontSize: 13, fontWeight: 600, color: T.labelPrimary, marginBottom: 6, letterSpacing: "-0.01em" }}>
+          <div style={{ fontSize: T.fzCallout, fontWeight: 700, color: T.labelPrimary, marginBottom: 8, letterSpacing: T.trackJP, lineHeight: T.lhTight }}>
             {help.title}
           </div>
-          <div style={{ fontSize: 12, color: T.labelSecondary, lineHeight: 1.55 }}>
+          <div style={{ fontSize: T.fzFootnote, color: T.labelPrimary, lineHeight: T.lhBody, letterSpacing: T.trackJP }}>
             {help.body}
           </div>
         </div>
@@ -569,23 +580,23 @@ export default function GlyphAnalyzer() {
     <div style={{ minHeight: "100vh", background: T.bgWindow, color: T.labelPrimary, fontFamily: T.fontUI, WebkitFontSmoothing: "antialiased" }}>
       {/* Toolbar (macOS-style) */}
       <div style={{
-        padding: "0 20px",
-        height: 52,
+        padding: "0 24px",
+        height: 56,
         borderBottom: `1px solid ${T.separator}`,
         display: "flex",
         alignItems: "center",
-        gap: 16,
+        gap: 18,
         background: T.bgToolbar,
         backdropFilter: "saturate(180%) blur(20px)",
         WebkitBackdropFilter: "saturate(180%) blur(20px)",
         position: "sticky", top: 0, zIndex: 10,
       }}>
-        <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-          <div style={{ width: 22, height: 22, borderRadius: 5, background: `linear-gradient(135deg, ${T.accent}, ${T.teal})`, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 13, color: "#fff", fontWeight: 700 }}>𝛋</div>
-          <span style={{ fontSize: 13, fontWeight: 600, color: T.labelPrimary, letterSpacing: "-0.01em" }}>グリフ幾何解析</span>
+        <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+          <div style={{ width: 24, height: 24, borderRadius: 6, background: `linear-gradient(135deg, ${T.accent}, ${T.teal})`, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 14, color: "#fff", fontWeight: 700 }}>𝛋</div>
+          <span style={{ fontSize: T.fzCallout, fontWeight: 600, color: T.labelPrimary, letterSpacing: T.trackJP }}>グリフ幾何解析</span>
         </div>
 
-        <div style={{ width: 1, height: 22, background: T.separator }} />
+        <div style={{ width: 1, height: 24, background: T.separator }} />
 
         {!font ? (
           <button
@@ -594,32 +605,33 @@ export default function GlyphAnalyzer() {
             onClick={() => fileRef.current?.click()}
             disabled={!otReady}
             style={{
-              padding: "5px 12px",
+              padding: "7px 14px",
               border: "none",
               borderRadius: T.radiusControl,
               cursor: otReady ? "pointer" : "wait",
-              fontSize: 12,
-              fontWeight: 500,
+              fontSize: T.fzFootnote,
+              fontWeight: 600,
               color: "#fff",
               background: otReady ? T.accent : T.bgGroup,
               fontFamily: T.fontUI,
+              letterSpacing: T.trackJP,
               transition: "background 0.15s",
             }}
           >
             {otReady ? "フォントを開く…" : "読み込み中…"}
           </button>
         ) : (
-          <span style={{ fontSize: 12, color: T.labelSecondary, fontWeight: 500 }}>{fontName}</span>
+          <span style={{ fontSize: T.fzFootnote, color: T.labelPrimary, fontWeight: 500, letterSpacing: T.trackJP }}>{fontName}</span>
         )}
         <input ref={fileRef} type="file" accept=".ttf,.otf,.woff" style={{ display: "none" }}
           onChange={(e) => { if (e.target.files[0]) handleFile(e.target.files[0]); }} />
 
         {font && (
           <>
-            <div style={{ width: 1, height: 22, background: T.separator }} />
+            <div style={{ width: 1, height: 24, background: T.separator }} />
 
-            <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
-              <label style={{ fontSize: 11, color: T.labelSecondary, display: "inline-flex", alignItems: "center", whiteSpace: "nowrap" }}>
+            <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+              <label style={{ fontSize: T.fzFootnote, color: T.labelSecondary, display: "inline-flex", alignItems: "center", whiteSpace: "nowrap", letterSpacing: T.trackJP }}>
                 字形<HelpButton help={HELP.glyph}/>
               </label>
               <input
@@ -633,24 +645,24 @@ export default function GlyphAnalyzer() {
                 onChange={() => {}}
                 onFocus={(e) => e.target.select()}
                 style={{
-                  width: 36, height: 26, textAlign: "center",
+                  width: 40, height: 28, textAlign: "center",
                   background: T.bgField,
                   border: `1px solid ${T.border}`,
                   borderRadius: T.radiusControl,
                   color: T.labelPrimary,
-                  fontSize: 14, fontWeight: 500,
+                  fontSize: T.fzHeadline, fontWeight: 500,
                   fontFamily: T.fontUI, outline: "none",
                 }}
               />
             </div>
 
-            <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-              <label style={{ fontSize: 11, color: T.labelSecondary, display: "inline-flex", alignItems: "center", whiteSpace: "nowrap" }}>
+            <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+              <label style={{ fontSize: T.fzFootnote, color: T.labelSecondary, display: "inline-flex", alignItems: "center", whiteSpace: "nowrap", letterSpacing: T.trackJP }}>
                 サイズ<HelpButton help={HELP.size}/>
               </label>
               <input type="range" min={150} max={480} value={displaySize} onChange={(e) => setDisplaySize(Number(e.target.value))}
-                style={{ width: 90, accentColor: T.accent }} />
-              <span style={{ fontSize: 11, color: T.labelTertiary, fontFamily: T.fontMono, minWidth: 28 }}>{displaySize}</span>
+                style={{ width: 100, accentColor: T.accent }} />
+              <span style={{ fontSize: T.fzCaption, color: T.labelSecondary, fontFamily: T.fontMono, minWidth: 32 }}>{displaySize}</span>
             </div>
 
             <div style={{ flex: 1 }} />
@@ -662,10 +674,11 @@ export default function GlyphAnalyzer() {
                 borderRadius: T.radiusControl,
                 color: T.labelPrimary,
                 cursor: "pointer",
-                padding: "5px 10px",
-                fontSize: 11,
+                padding: "6px 12px",
+                fontSize: T.fzFootnote,
                 fontFamily: T.fontUI,
                 fontWeight: 500,
+                letterSpacing: T.trackJP,
               }}>
               フォントを変更
             </button>
@@ -674,24 +687,24 @@ export default function GlyphAnalyzer() {
       </div>
 
       {!font ? (
-        <div style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", height: "calc(100vh - 52px)", gap: 24 }}
+        <div style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", height: "calc(100vh - 56px)", gap: 28 }}
           onDragOver={(e) => e.preventDefault()} onDrop={handleDrop}>
           <div style={{
-            width: 96, height: 96, borderRadius: 22,
+            width: 104, height: 104, borderRadius: 24,
             background: `linear-gradient(135deg, ${T.accent}, ${T.teal})`,
             display: "flex", alignItems: "center", justifyContent: "center",
-            fontSize: 44, color: "#fff", fontWeight: 700,
+            fontSize: 48, color: "#fff", fontWeight: 700,
             boxShadow: "0 12px 32px rgba(10,132,255,0.25), inset 0 1px 0 rgba(255,255,255,0.2)",
           }}>𝛋</div>
-          <div style={{ textAlign: "center", maxWidth: 360 }}>
-            <div style={{ fontSize: 22, fontWeight: 600, color: T.labelPrimary, letterSpacing: "-0.02em", marginBottom: 8 }}>
+          <div style={{ textAlign: "center", maxWidth: 420, padding: "0 24px" }}>
+            <div style={{ fontSize: 24, fontWeight: 700, color: T.labelPrimary, letterSpacing: T.trackJP, marginBottom: 12, lineHeight: T.lhTight }}>
               フォントを開く
             </div>
-            <div style={{ fontSize: 13, color: T.labelSecondary, lineHeight: 1.5 }}>
-              .ttf または .otf ファイルをドラッグ&ドロップ、または上の「Open Font…」ボタンから選択してください。
+            <div style={{ fontSize: T.fzBody, color: T.labelSecondary, lineHeight: T.lhBody, letterSpacing: T.trackJP }}>
+              .ttf または .otf ファイルをドラッグ&ドロップ、<br/>または上の「フォントを開く…」ボタンから選択してください。
             </div>
-            <div style={{ fontSize: 12, color: T.labelTertiary, marginTop: 12, lineHeight: 1.5 }}>
-              Google Fonts から Jost, Montserrat などをダウンロードして使えます
+            <div style={{ fontSize: T.fzFootnote, color: T.labelTertiary, marginTop: 16, lineHeight: T.lhBody, letterSpacing: T.trackJP }}>
+              Google Fonts から Jost、Montserrat などをダウンロードして使えます
             </div>
           </div>
         </div>
@@ -812,17 +825,17 @@ export default function GlyphAnalyzer() {
               )}
 
               {/* Legend */}
-              <g transform="translate(14, 18)" fontFamily={T.fontUI}>
-                {showInflections && <><circle cx={5} cy={0} r={3.5} fill="none" stroke={T.red} strokeWidth={1.2}/><text x={14} y={3.5} fill={T.red} fontSize={10}>変曲点 (κ=0)</text></>}
-                {showExtrema && <><rect x={1.5} y={12.5} width={6} height={6} fill="none" stroke={T.yellow} strokeWidth={1} transform="rotate(45,4.5,15.5)"/><text x={14} y={19} fill={T.yellow} fontSize={10}>曲率の極値</text></>}
-                <text x={0} y={35} fill={T.green} fontSize={10}>輪郭をクリック → 接触円を固定</text>
+              <g transform="translate(16, 22)" fontFamily={T.fontUI}>
+                {showInflections && <><circle cx={5} cy={0} r={4} fill="none" stroke={T.red} strokeWidth={1.4}/><text x={16} y={4} fill={T.red} fontSize={12} fontWeight={500}>変曲点 (κ=0)</text></>}
+                {showExtrema && <><rect x={1} y={15} width={8} height={8} fill="none" stroke={T.yellow} strokeWidth={1.2} transform="rotate(45,5,19)"/><text x={16} y={23} fill={T.yellow} fontSize={12} fontWeight={500}>曲率の極値</text></>}
+                <text x={0} y={42} fill={T.green} fontSize={12} fontWeight={500}>輪郭をクリック → 接触円を固定</text>
               </g>
             </svg>
 
             {/* Curvature plot */}
             {analyzed.length > 0 && (
               <div style={{ marginTop: 16 }}>
-                <div style={{ fontSize: 11, color: T.labelSecondary, marginBottom: 8, fontWeight: 500, display: "inline-flex", alignItems: "center" }}>
+                <div style={{ fontSize: T.fzFootnote, color: T.labelPrimary, marginBottom: 10, fontWeight: 600, display: "inline-flex", alignItems: "center", letterSpacing: T.trackJP }}>
                   経路に沿った曲率 κ(t)<HelpButton help={HELP.kappa}/>
                 </div>
                 <svg width={canvasW} height={plotH} style={{ background: T.bgContent, borderRadius: T.radiusCard, border: `1px solid ${T.separator}`, display: "block" }}>
@@ -883,10 +896,10 @@ export default function GlyphAnalyzer() {
 
           {/* Right inspector panel (Xcode-style) */}
           <div style={{
-            width: 260,
+            width: 280,
             flexShrink: 0,
-            display: "flex", flexDirection: "column", gap: 16,
-            fontSize: 12, lineHeight: 1.5,
+            display: "flex", flexDirection: "column", gap: 18,
+            fontSize: T.fzFootnote, lineHeight: T.lhBody,
           }}>
             {/* Display toggles */}
             <div>
@@ -900,26 +913,26 @@ export default function GlyphAnalyzer() {
                 ].map(([label, val, setter, help]) => (
                   <div key={label} style={{
                     display: "flex", alignItems: "center", justifyContent: "space-between",
-                    padding: "5px 0",
-                    color: T.labelPrimary, fontSize: 12,
+                    padding: "6px 0",
+                    color: T.labelPrimary, fontSize: T.fzFootnote, letterSpacing: T.trackJP,
                   }}>
                     <span style={{ display: "inline-flex", alignItems: "center", cursor: "pointer" }} onClick={() => setter(!val)}>
                       {label}
                     </span>
-                    <span style={{ display: "inline-flex", alignItems: "center", gap: 6 }}>
+                    <span style={{ display: "inline-flex", alignItems: "center", gap: 8 }}>
                       <HelpButton help={help} />
                       <Toggle on={val} onChange={() => setter(!val)} />
                     </span>
                   </div>
                 ))}
                 {showComb && (
-                  <div style={{ display: "flex", alignItems: "center", gap: 8, marginTop: 8, paddingTop: 8, borderTop: `1px solid ${T.separator}` }}>
-                    <span style={{ fontSize: 11, color: T.labelSecondary, flex: 1, display: "inline-flex", alignItems: "center" }}>
+                  <div style={{ display: "flex", alignItems: "center", gap: 8, marginTop: 10, paddingTop: 10, borderTop: `1px solid ${T.separator}` }}>
+                    <span style={{ fontSize: T.fzFootnote, color: T.labelSecondary, flex: 1, display: "inline-flex", alignItems: "center", letterSpacing: T.trackJP }}>
                       コームの長さ<HelpButton help={HELP.combScale}/>
                     </span>
                     <input type="range" min={10} max={100} value={combScale} onChange={(e) => setCombScale(Number(e.target.value))}
                       style={{ width: 80, accentColor: T.accent }}/>
-                    <span style={{ fontSize: 11, color: T.labelTertiary, fontFamily: T.fontMono, minWidth: 22, textAlign: "right" }}>{combScale}</span>
+                    <span style={{ fontSize: T.fzCaption, color: T.labelSecondary, fontFamily: T.fontMono, minWidth: 24, textAlign: "right" }}>{combScale}</span>
                   </div>
                 )}
               </Card>
@@ -941,7 +954,7 @@ export default function GlyphAnalyzer() {
                 </Card>
               ) : (
                 <Card>
-                  <div style={{ color: T.labelTertiary, fontSize: 11, padding: "4px 0", textAlign: "center" }}>
+                  <div style={{ color: T.labelSecondary, fontSize: T.fzFootnote, padding: "6px 0", textAlign: "center", letterSpacing: T.trackJP, lineHeight: T.lhBody }}>
                     輪郭にカーソルを合わせて確認
                   </div>
                 </Card>
@@ -1000,21 +1013,23 @@ export default function GlyphAnalyzer() {
                         onMouseEnter={() => setHoveredSeg(si)}
                         onMouseLeave={() => setHoveredSeg(null)}
                         style={{
-                          padding: "5px 8px",
+                          padding: "6px 8px",
                           borderRadius: T.radiusInline,
                           marginBottom: 1,
                           cursor: "default",
                           background: isHov ? "rgba(10,132,255,0.15)" : "transparent",
-                          display: "flex", alignItems: "center", gap: 8,
-                          fontSize: 11,
+                          display: "flex", alignItems: "center", gap: 10,
+                          fontSize: T.fzFootnote,
+                          letterSpacing: T.trackJP,
                         }}>
                         <div style={{ width: 10, height: 10, borderRadius: 3, background: kColor(midK, maxK), flexShrink: 0, boxShadow: "inset 0 0 0 1px rgba(0,0,0,0.3)" }}/>
-                        <span style={{ color: T.labelTertiary, fontFamily: T.fontMono, minWidth: 24 }}>#{si}</span>
+                        <span style={{ color: T.labelSecondary, fontFamily: T.fontMono, minWidth: 28, fontSize: T.fzCaption }}>#{si}</span>
                         <span style={{ color: T.labelPrimary, flex: 1 }}>{ {cubic: "3次ベジェ", quad: "2次ベジェ", line: "直線"}[seg.type] || seg.type }</span>
                         {seg.inflections.length > 0 && (
                           <span style={{
-                            color: T.red, fontSize: 10, fontFamily: T.fontMono,
-                            background: "rgba(255,69,58,0.12)", padding: "1px 5px", borderRadius: 3,
+                            color: T.red, fontSize: T.fzCaption, fontFamily: T.fontUI,
+                            background: "rgba(255,69,58,0.16)", padding: "2px 7px", borderRadius: 4,
+                            letterSpacing: T.trackJP, fontWeight: 500,
                           }}>変曲 {seg.inflections.length}</span>
                         )}
                       </div>
